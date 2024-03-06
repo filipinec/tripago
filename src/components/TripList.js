@@ -1,19 +1,21 @@
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import './TripList.css'
 
 export default function TripList() {
   const [trips, setTrips] = useState([])
   const [url, setUrl] = useState(['http://localhost:3000/trips'])
 
-  useEffect( () => {
-    axios.get(url).then(res => {
-      const info = res.data
-      setTrips(info)
-    })
-  },[url])
+  const apiTrips = useCallback(async () => {
+    const response = await axios.get(url)
+    setTrips(response.data)
+  }, [url]) // Add dependency in useCallback function
 
- 
+  useEffect( () => {
+    apiTrips()
+  },[apiTrips])  // If I use function (Array or Object result) like a dependency in useEffect must use useCallback function 
+
+ console.log(trips)
 
 
   return (
@@ -30,7 +32,6 @@ export default function TripList() {
     <div className='filters'>
       <button onClick={()=> setUrl('http://localhost:3000/trips?loc=europe')}>European Trips</button>
       <button onClick={()=> setUrl('http://localhost:3000/trips')}>All Trips</button>
-
     </div>
     </div>
   )
